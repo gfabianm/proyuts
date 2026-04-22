@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - PROYUTS</title>
+</head>
+<body>
+    <h2>Iniciar sesión</h2>
+
+    <form method="post" action="/login">
+        <div>
+            <label>Correo:</label>
+            <input type="text" name="username" required>
+        </div>
+        <br>
+        <div>
+            <label>Contraseña:</label>
+            <input type="password" name="password" required>
+        </div>
+        <br>
+        <button type="submit">Ingresar</button>
+    </form>
+</body>
+</html>
