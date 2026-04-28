@@ -18,8 +18,10 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/usuarios/admin/**").hasRole("ADMIN")
+                .requestMatchers("/login", "/registro", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMINISTRADOR")
+                .requestMatchers("/profesor/**").hasRole("PROFESOR")
+                .requestMatchers("/usuarios/admin/**").hasRole("ADMINISTRADOR")
                 .requestMatchers("/usuarios/profesor/**").hasRole("PROFESOR")
                 .requestMatchers("/usuarios/estudiante/**").hasRole("ESTUDIANTE")
                 .anyRequest().authenticated()
@@ -29,7 +31,13 @@ public class SecurityConfig {
                 .defaultSuccessUrl("/", true)
                 .permitAll()
             )
-            .logout(logout -> logout.permitAll());
+            .logout(logout -> logout
+                .logoutSuccessUrl("/login?logout")
+                .permitAll()
+            )
+            .exceptionHandling(exception -> exception
+                .accessDeniedPage("/403")
+            );
 
         return http.build();
     }

@@ -7,12 +7,14 @@
     <title>Inicio - PROYUTS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-light">
 
 <div class="container py-5">
 
     <div class="card shadow-sm mb-4">
         <div class="card-body">
+
             <h1 class="mb-3">Bienvenido a PROYUTS</h1>
 
             <p class="text-success fw-semibold">Login exitoso.</p>
@@ -24,42 +26,68 @@
             <p>
                 Rol: <span sec:authentication="principal.authorities"></span>
             </p>
-			
-			<div class="mt-3">
 
-			    <div sec:authorize="hasRole('ADMIN')" class="alert alert-danger">
-			        Bienvenido administrador. Tienes acceso completo al sistema.
-			    </div>
+            <div class="mt-3">
 
-			    <div sec:authorize="hasRole('ESTUDIANTE')" class="alert alert-success">
-			        Bienvenido estudiante. Puedes consultar cursos e inscribirte.
-			    </div>
+                <div sec:authorize="hasRole('ADMINISTRADOR')" class="alert alert-danger">
+                    Bienvenido administrador. Tienes acceso completo al sistema.
+                </div>
 
-			    <div sec:authorize="hasRole('PROFESOR')" class="alert alert-warning">
-			        Bienvenido profesor. Próximamente tendrás acceso a la gestión académica.
-			    </div>
+                <div sec:authorize="hasRole('ESTUDIANTE')" class="alert alert-success">
+                    Bienvenido estudiante. Puedes consultar cursos, inscribirte y revisar tu avance académico.
+                </div>
 
-			</div>
+                <div sec:authorize="hasRole('PROFESOR')" class="alert alert-warning">
+                    Bienvenido profesor. Puedes consultar el panel académico de cursos.
+                </div>
 
-			<div class="mt-4 d-flex gap-2 flex-wrap">
+            </div>
 
-			    <div sec:authorize="hasRole('ADMIN')">
-			        <a href="/usuarios" class="btn btn-outline-primary">Ver usuarios en JSON</a>
-			    </div>
+            <div class="mt-4 d-flex gap-2 flex-wrap">
 
-			    <div sec:authorize="hasAnyRole('ADMIN','ESTUDIANTE','PROFESOR')">
-			        <a href="/web/cursos" class="btn btn-primary">Ir al módulo de cursos</a>
-			    </div>
+                <!-- TODOS LOS USUARIOS AUTENTICADOS -->
+                <a href="/perfil" class="btn btn-outline-dark">Mi perfil</a>
 
-			</div>
+                <a href="/web/cursos" class="btn btn-primary">Ir al módulo de cursos</a>
+
+                <!-- SOLO ESTUDIANTE -->
+                <div sec:authorize="hasRole('ESTUDIANTE')">
+                    <a href="/mis-cursos" class="btn btn-outline-success">Mis cursos</a>
+                </div>
+
+                <div sec:authorize="hasRole('ESTUDIANTE')">
+                    <a href="/dashboard-estudiante" class="btn btn-outline-warning">Dashboard académico</a>
+                </div>
+
+                <div sec:authorize="hasRole('ESTUDIANTE')">
+                    <a href="/estadisticas" class="btn btn-outline-info">Estadísticas</a>
+                </div>
+
+                <!-- SOLO PROFESOR -->
+                <div sec:authorize="hasRole('PROFESOR')">
+                    <a href="/profesor/panel" class="btn btn-outline-warning">Panel profesor</a>
+                </div>
+
+                <!-- SOLO ADMINISTRADOR -->
+                <div sec:authorize="hasRole('ADMINISTRADOR')">
+                    <a href="/usuarios" class="btn btn-outline-primary">Ver usuarios en JSON</a>
+                </div>
+
+                <div sec:authorize="hasRole('ADMINISTRADOR')">
+                    <a href="/admin/usuarios" class="btn btn-outline-danger">Gestionar usuarios</a>
+                </div>
+
+            </div>
 
             <form method="post" action="/logout" class="mt-4">
                 <button type="submit" class="btn btn-danger">Cerrar sesión</button>
             </form>
+
         </div>
     </div>
 
     <div class="row g-4">
+
         <div class="col-md-4">
             <div class="card text-bg-primary shadow-sm">
                 <div class="card-body">
@@ -86,6 +114,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 
 </div>

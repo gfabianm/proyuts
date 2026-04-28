@@ -1,6 +1,9 @@
 package com.proyuts.app.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
@@ -12,23 +15,35 @@ public class Curso {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "El nombre del curso es obligatorio")
     private String nombre;
 
+    @NotBlank(message = "La descripción es obligatoria")
     private String descripcion;
 
+    @NotNull(message = "El cupo máximo es obligatorio")
+    @Min(value = 1, message = "El cupo máximo debe ser mayor a 0")
     @Column(name = "cupo_maximo")
     private Integer cupoMaximo;
 
+    @NotNull(message = "Los PROYUTS otorgados son obligatorios")
+    @Min(value = 1, message = "Los PROYUTS otorgados deben ser mayor a 0")
     @Column(name = "proyuts_otorgados")
     private Integer proyutsOtorgados;
 
+    @NotNull(message = "Debe seleccionar una categoría")
     @ManyToOne
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
 
+    @NotNull(message = "Debe seleccionar un estado")
     @ManyToOne
     @JoinColumn(name = "estado_id")
     private EstadoCurso estado;
+
+    @ManyToOne
+    @JoinColumn(name = "profesor_id")
+    private Usuario profesor;
 
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
@@ -64,6 +79,10 @@ public class Curso {
         return estado;
     }
 
+    public Usuario getProfesor() {
+        return profesor;
+    }
+
     public LocalDateTime getFechaCreacion() {
         return fechaCreacion;
     }
@@ -94,6 +113,10 @@ public class Curso {
 
     public void setEstado(EstadoCurso estado) {
         this.estado = estado;
+    }
+
+    public void setProfesor(Usuario profesor) {
+        this.profesor = profesor;
     }
 
     public void setFechaCreacion(LocalDateTime fechaCreacion) {

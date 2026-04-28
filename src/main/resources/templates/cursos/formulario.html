@@ -20,57 +20,86 @@
 
             <form th:action="@{/web/cursos/guardar}" th:object="${curso}" method="post">
 
-                <!-- 🔥 IMPORTANTE -->
                 <input type="hidden" th:field="*{id}">
 
                 <div class="mb-3">
                     <label class="form-label">Nombre</label>
-                    <input type="text" th:field="*{nombre}" class="form-control" required>
+                    <input type="text"
+                           th:field="*{nombre}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Descripción</label>
-                    <textarea th:field="*{descripcion}" class="form-control" rows="3" required></textarea>
+                    <textarea th:field="*{descripcion}"
+                              class="form-control"
+                              rows="3"
+                              th:classappend="${#fields.hasErrors('descripcion')} ? 'is-invalid'"></textarea>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Cupo Máximo</label>
-                    <input type="number" th:field="*{cupoMaximo}" class="form-control" required>
+                    <input type="number"
+                           th:field="*{cupoMaximo}"
+                           class="form-control"
+                           min="1"
+                           th:classappend="${#fields.hasErrors('cupoMaximo')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('cupoMaximo')}" th:errors="*{cupoMaximo}"></div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">PROYUTS Otorgados</label>
-                    <input type="number" th:field="*{proyutsOtorgados}" class="form-control" required>
+                    <input type="number"
+                           th:field="*{proyutsOtorgados}"
+                           class="form-control"
+                           min="1"
+                           th:classappend="${#fields.hasErrors('proyutsOtorgados')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('proyutsOtorgados')}" th:errors="*{proyutsOtorgados}"></div>
                 </div>
 
-                <!-- 🔥 CATEGORIA -->
                 <div class="mb-3">
                     <label class="form-label">Categoría</label>
-                    <select th:field="*{categoria}" class="form-select" required>
+                    <select th:field="*{categoria}"
+                            class="form-select"
+                            th:classappend="${#fields.hasErrors('categoria')} ? 'is-invalid'">
                         <option value="">Seleccione...</option>
                         <option th:each="cat : ${categorias}"
-                                th:value="${cat}"
+                                th:value="${cat.id}"
                                 th:text="${cat.nombre}">
                         </option>
                     </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('categoria')}" th:errors="*{categoria}"></div>
                 </div>
 
-                <!-- 🔥 ESTADO -->
                 <div class="mb-3">
                     <label class="form-label">Estado</label>
-                    <select th:field="*{estado}" class="form-select" required>
+                    <select th:field="*{estado}"
+                            class="form-select"
+                            th:classappend="${#fields.hasErrors('estado')} ? 'is-invalid'">
                         <option value="">Seleccione...</option>
                         <option th:each="est : ${estados}"
-                                th:value="${est}"
+                                th:value="${est.id}"
                                 th:text="${est.nombre}">
+                        </option>
+                    </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('estado')}" th:errors="*{estado}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Profesor asignado</label>
+                    <select th:field="*{profesor}" class="form-select">
+                        <option value="">Sin profesor asignado</option>
+                        <option th:each="profesor : ${profesores}"
+                                th:value="${profesor.id}"
+                                th:text="${profesor.nombre + ' ' + profesor.apellido}">
                         </option>
                     </select>
                 </div>
 
-                <div class="mb-4">
-                    <label class="form-label">Fecha de Creación</label>
-                    <input type="datetime-local" th:field="*{fechaCreacion}" class="form-control" required>
-                </div>
+                <input type="hidden" th:field="*{fechaCreacion}">
 
                 <div class="d-flex justify-content-between">
                     <a th:href="@{/web/cursos}" class="btn btn-secondary">Cancelar</a>

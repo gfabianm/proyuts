@@ -26,9 +26,15 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("Usuario no encontrado");
         }
 
+        boolean activo = Boolean.TRUE.equals(usuario.getActivo());
+
         return new User(
                 usuario.getEmail(),
                 usuario.getPassword(),
+                activo,
+                true,
+                true,
+                true,
                 usuario.getRoles().stream()
                         .map(rol -> new SimpleGrantedAuthority("ROLE_" + rol.getNombre()))
                         .collect(Collectors.toList())

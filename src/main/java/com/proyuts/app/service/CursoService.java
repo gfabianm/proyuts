@@ -22,12 +22,61 @@ public class CursoService {
     public Curso guardar(Curso curso) {
         return cursoRepository.save(curso);
     }
-    
+
     public Curso buscarPorId(Long id) {
         return cursoRepository.findById(id).orElse(null);
     }
 
     public void eliminar(Long id) {
         cursoRepository.deleteById(id);
+    }
+
+    public List<Curso> filtrarCursos(String nombre, Long categoriaId, Long estadoId) {
+
+        boolean tieneNombre = nombre != null && !nombre.trim().isEmpty();
+        boolean tieneCategoria = categoriaId != null;
+        boolean tieneEstado = estadoId != null;
+
+        if (tieneNombre && tieneCategoria && tieneEstado) {
+            return cursoRepository.findByNombreContainingIgnoreCaseAndCategoriaIdAndEstadoId(
+                    nombre,
+                    categoriaId,
+                    estadoId
+            );
+        }
+
+        if (tieneNombre && tieneCategoria) {
+            return cursoRepository.findByNombreContainingIgnoreCaseAndCategoriaId(nombre, categoriaId);
+        }
+
+        if (tieneNombre && tieneEstado) {
+            return cursoRepository.findByNombreContainingIgnoreCaseAndEstadoId(nombre, estadoId);
+        }
+
+        if (tieneCategoria && tieneEstado) {
+            return cursoRepository.findByCategoriaIdAndEstadoId(categoriaId, estadoId);
+        }
+
+        if (tieneNombre) {
+            return cursoRepository.findByNombreContainingIgnoreCase(nombre);
+        }
+
+        if (tieneCategoria) {
+            return cursoRepository.findByCategoriaId(categoriaId);
+        }
+
+        if (tieneEstado) {
+            return cursoRepository.findByEstadoId(estadoId);
+        }
+
+        return cursoRepository.findAll();
+    }
+
+    public List<Curso> obtenerTop5Cursos() {
+        return cursoRepository.findTop5ByOrderByProyutsOtorgadosDesc();
+    }
+
+    public List<Curso> obtenerCursosPorProfesor(Long profesorId) {
+        return cursoRepository.findByProfesorId(profesorId);
     }
 }

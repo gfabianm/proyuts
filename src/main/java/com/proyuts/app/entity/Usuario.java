@@ -1,6 +1,9 @@
 package com.proyuts.app.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -14,20 +17,25 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @NotBlank(message = "El nombre es obligatorio")
     private String nombre;
 
-    @Column(nullable = false)
+    @NotBlank(message = "El apellido es obligatorio")
     private String apellido;
 
+    @NotBlank(message = "El correo es obligatorio")
+    @Email(message = "Debe ingresar un correo válido")
     @Column(nullable = false, unique = true)
     private String email;
 
+    @NotBlank(message = "La contraseña es obligatoria")
+    @Size(min = 6, message = "La contraseña debe tener mínimo 6 caracteres")
     @Column(nullable = false)
     private String password;
 
     private String telefono;
 
+    @NotBlank(message = "El programa académico es obligatorio")
     @Column(name = "programa_academico")
     private String programaAcademico;
 
