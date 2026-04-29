@@ -70,8 +70,9 @@ public class UsuarioService {
         usuario.setActivo(true);
         usuario.setFechaRegistro(LocalDateTime.now());
 
-        if (usuario.getFoto() == null || usuario.getFoto().isBlank()) {
-            usuario.setFoto("default.png");
+        // CORRECCIÓN: Como ahora es byte[], simplemente verificamos si es null
+        if (usuario.getFoto() == null) {
+            usuario.setFoto(null); // O podrías cargar un archivo por defecto aquí si quisieras
         }
 
         usuarioRepository.save(usuario);
@@ -90,6 +91,11 @@ public class UsuarioService {
         usuario.setTelefono(datosActualizados.getTelefono());
         usuario.setProgramaAcademico(datosActualizados.getProgramaAcademico());
         usuario.setBiografia(datosActualizados.getBiografia());
+        
+        // CORRECCIÓN: También actualizamos la foto si el objeto trae una nueva
+        if (datosActualizados.getFoto() != null) {
+            usuario.setFoto(datosActualizados.getFoto());
+        }
 
         usuarioRepository.save(usuario);
     }

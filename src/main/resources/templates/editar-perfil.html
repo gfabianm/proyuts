@@ -1,101 +1,72 @@
 <!DOCTYPE html>
-<html lang="es"
-      xmlns:th="http://www.thymeleaf.org">
-
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Editar Perfil - PROYUTS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-
 <body class="bg-light">
 
 <div class="container py-5">
-
     <div class="row justify-content-center">
         <div class="col-md-7">
-
             <div class="card shadow-sm">
                 <div class="card-body">
-
                     <h2 class="text-center mb-4">Editar Perfil</h2>
 
-                    <form th:action="@{/perfil/editar}" th:object="${usuario}" method="post">
-
+                    <form th:action="@{/perfil/editar}" th:object="${usuario}" method="post" enctype="multipart/form-data">
+                        
                         <input type="hidden" th:field="*{id}">
+
+                        <div class="mb-4 text-center">
+                            <label class="form-label d-block text-start fw-bold">Actualizar foto de perfil</label>
+                            <input type="file" name="archivoImagen" class="form-control" accept="image/*">
+                            <small class="text-muted">Se recomienda una imagen cuadrada.</small>
+                        </div>
 
                         <div class="mb-3">
                             <label class="form-label">Nombre</label>
-                            <input type="text"
-                                   th:field="*{nombre}"
-                                   class="form-control"
-                                   th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid'">
-                            <div class="invalid-feedback"
-                                 th:if="${#fields.hasErrors('nombre')}"
-                                 th:errors="*{nombre}">
-                            </div>
+                            <input type="text" th:field="*{nombre}" class="form-control" th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Apellido</label>
-                            <input type="text"
-                                   th:field="*{apellido}"
-                                   class="form-control"
-                                   th:classappend="${#fields.hasErrors('apellido')} ? 'is-invalid'">
-                            <div class="invalid-feedback"
-                                 th:if="${#fields.hasErrors('apellido')}"
-                                 th:errors="*{apellido}">
-                            </div>
+                            <input type="text" th:field="*{apellido}" class="form-control" th:classappend="${#fields.hasErrors('apellido')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('apellido')}" th:errors="*{apellido}"></div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Correo</label>
-                            <input type="email"
-                                   th:value="${usuario.email}"
-                                   class="form-control"
-                                   disabled>
-                            <small class="text-muted">El correo no se puede modificar por ahora.</small>
+                            <input type="email" th:value="${usuario.email}" class="form-control" disabled>
+                            <small class="text-muted">El correo no se puede modificar.</small>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Teléfono</label>
-                            <input type="text"
-                                   th:field="*{telefono}"
-                                   class="form-control">
+                            <input type="text" th:field="*{telefono}" class="form-control">
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Programa académico</label>
-                            <input type="text"
-                                   th:field="*{programaAcademico}"
-                                   class="form-control"
-                                   th:classappend="${#fields.hasErrors('programaAcademico')} ? 'is-invalid'">
-                            <div class="invalid-feedback"
-                                 th:if="${#fields.hasErrors('programaAcademico')}"
-                                 th:errors="*{programaAcademico}">
-                            </div>
+                            <input type="text" th:field="*{programaAcademico}" class="form-control" th:classappend="${#fields.hasErrors('programaAcademico')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('programaAcademico')}" th:errors="*{programaAcademico}"></div>
                         </div>
 
                         <div class="mb-4">
                             <label class="form-label">Biografía</label>
-                            <textarea th:field="*{biografia}"
-                                      class="form-control"
-                                      rows="4"></textarea>
+                            <textarea th:field="*{biografia}" class="form-control" rows="4"></textarea>
                         </div>
 
                         <div class="d-flex justify-content-between">
                             <a th:href="@{/perfil}" class="btn btn-secondary">Cancelar</a>
                             <button type="submit" class="btn btn-success">Guardar cambios</button>
                         </div>
-
                     </form>
-
                 </div>
             </div>
-
         </div>
     </div>
-
 </div>
 
 </body>
