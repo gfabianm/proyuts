@@ -1,11 +1,13 @@
 package com.proyuts.app.controller;
 
 import com.proyuts.app.entity.Curso;
+import com.proyuts.app.entity.Usuario;
 import com.proyuts.app.repository.CategoriaRepository;
 import com.proyuts.app.repository.EstadoCursoRepository;
 import com.proyuts.app.repository.UsuarioRepository;
 import com.proyuts.app.service.CursoService;
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -39,7 +41,15 @@ public class CursoWebController {
             @RequestParam(required = false) String nombre,
             @RequestParam(required = false) Long categoriaId,
             @RequestParam(required = false) Long estadoId,
+            Authentication authentication,
             Model model) {
+
+        // Obtener el usuario logueado para comparaciones en la tabla
+        if (authentication != null) {
+            String email = authentication.getName();
+            Usuario usuarioLogueado = usuarioRepository.findByEmail(email); 
+            model.addAttribute("usuarioLogueado", usuarioLogueado);
+        }
 
         model.addAttribute("cursos", cursoService.filtrarCursos(nombre, categoriaId, estadoId));
         model.addAttribute("categorias", categoriaRepository.findAll());
