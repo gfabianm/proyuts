@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora de Notas - PROYUTS</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ─── Variables & Reset ─────────────────────────────────────── */
+        :root {
+            --green:        #C3D730;
+            --green-dark:   #596400;
+            --green-deep:   #1f2a00;
+            --green-light:  #f0f5d0;
+            --sidebar-w:    230px;
+            --bg:           #f4f6f9;
+            --white:        #ffffff;
+            --surface:      #f8f9fa;
+            --card-shadow:  0 10px 25px rgba(0,0,0,.06);
+            --red:          #e63946;
+            --red-light:    #fff0f1;
+            --amber:        #f59e0b;
+            --amber-light:  #fffbeb;
+            --radius-lg:    16px;
+            --radius-xl:    22px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            margin: 0;
+            font-family: 'MyriadPro', 'Segoe UI', Arial, sans-serif;
+            background: #f4f6f9;
+        }
+
+        
+
+        /* ─── Sidebar ───────────────────────────────────────────────── */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--white);
+            border-right: 1px solid #eee;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0;
+            height: 100vh;
+            z-index: 100;
+        }
+        .logo {
+            font-weight: bold;
+            color: #6c8000;
+            margin-bottom: 30px;
+        }
+        .menu a {
+            display: block;
+            padding: 12px 15px;
+            border-radius: 12px;
+            color: #555;
+            text-decoration: none;
+            margin-bottom: 10px;
+            transition: 0.3s;
+            font-weight: 700;
+        }
+
+        .menu a i { margin-right: 8px;}
+        .menu a:hover, .menu a.active {
+            background: #C3D730;
+            color: #1f2a00;
+        }
+
+        .menu-section {
+            font-size:.68rem;
+            font-weight:800;
+            text-transform:uppercase;
+            letter-spacing:.1em;
+            color:#bbb;
+            padding:8px 15px 2px;
+        }
+        
+
+        .logout-btn {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 12px;
+            background: #dc3545;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .logout-btn:hover { background: #b02a37; color: white; }
+
+        /* ─── Main content ──────────────────────────────────────────── */
+        .content {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            padding: 32px 36px;
+            max-width: 1100px;
+        }
+
+        /* ─── Page header ───────────────────────────────────────────── */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+        .page-header h1 {
+            font-family: 'Manrope', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--green-deep);
+        }
+        .page-header p { color: #666; font-size: .9rem; margin-top: 3px; }
+
+        /* ─── Subject name input ────────────────────────────────────── */
+        .subject-row {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 20px 24px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .subject-row label {
+            font-family: 'Manrope', sans-serif;
+            font-weight: 700;
+            font-size: .85rem;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--green-dark);
+            white-space: nowrap;
+        }
+        .subject-row input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            border: 2px solid #e8e8e8;
+            border-radius: 10px;
+            padding: 9px 14px;
+            font-family: 'Manrope', sans-serif;
+            font-size: .95rem;
+            font-weight: 600;
+            color: #222;
+            outline: none;
+            transition: border-color .2s;
+        }
+        .subject-row input[type="text"]:focus { border-color: var(--green); }
+
+        /* ─── Cortes grid ───────────────────────────────────────────── */
+        .cortes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        /* ─── Corte card ────────────────────────────────────────────── */
+        .corte-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+        .corte-header {
+            background: linear-gradient(135deg, var(--green-dark), var(--green));
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .corte-header h2 {
+            font-family: 'Manrope', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            color: white;
+        }
+        .corte-header .badge-pct {
+            background: rgba(255,255,255,.2);
+            border-radius: 50px;
+            padding: 3px 12px;
+            font-size: .75rem;
+            font-weight: 700;
+            color: white;
+        }
+        .corte-body { padding: 20px; }
+
+        /* ─── Note field ────────────────────────────────────────────── */
+        .note-field {
+            margin-bottom: 14px;
+        }
+        .note-field:last-child { margin-bottom: 0; }
+        .note-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .note-label span:first-child {
+            font-size: .82rem;
+            font-weight: 600;
+            color: #444;
+        }
+        .note-label .pct-tag {
+            font-size: .72rem;
+            font-weight: 700;
+            background: var(--green-light);
+            color: var(--green-dark);
+            border-radius: 50px;
+            padding: 2px 9px;
+        }
+
+        .note-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .note-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 99px;
+            background: #e8e8e8;
+            outline: none;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        .note-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            background: var(--green-dark);
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 1px 6px rgba(0,0,0,.2);
+            transition: transform .15s;
+        }
+        .note-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        .note-number {
+            width: 62px;
+            border: 2px solid #e8e8e8;
+            border-radius: 9px;
+            padding: 6px 8px;
+            text-align: center;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 700;
+            font-size: .95rem;
+            color: #222;
+            outline: none;
+            transition: border-color .2s;
+        }
+        .note-number:focus { border-color: var(--green); }
+
+        /* ─── Corte result ──────────────────────────────────────────── */
+        .corte-result {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: var(--green-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .corte-result .label {
+            font-size: .8rem;
+            font-weight: 700;
+            color: var(--green-dark);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+        .corte-result .value {
+            font-family: 'Manrope', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--green-deep);
+            transition: all .3s;
+        }
+
+        /* ─── Final result ──────────────────────────────────────────── */
+        .final-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--card-shadow);
+            padding: 28px 32px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .final-big {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .final-number {
+            font-family: 'Manrope', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            line-height: 1;
+            color: var(--green-deep);
+            transition: all .4s;
+        }
+        .final-label {
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .final-details { flex: 1; min-width: 220px; }
+        .final-details h3 {
+            font-family: 'Manrope', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+        .final-details p { color: #666; font-size: .9rem; margin-bottom: 14px; }
+
+        /* Verdict badge */
+        .verdict {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 20px;
+            border-radius: 50px;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 800;
+            font-size: .95rem;
+            transition: all .4s;
+        }
+        .verdict.aprobado {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .verdict.reprobado {
+            background: var(--red-light);
+            color: var(--red);
+        }
+        .verdict.pendiente {
+            background: #f1f5f9;
+            color: #94a3b8;
+        }
+
+        /* Progress bar */
+        .progress-wrap { margin-top: 14px; }
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: .75rem;
+            font-weight: 600;
+            color: #999;
+            margin-bottom: 5px;
+        }
+        .progress-bar-bg {
+            height: 8px;
+            background: #e8e8e8;
+            border-radius: 99px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--green-dark), var(--green));
+            transition: width .5s cubic-bezier(.4,0,.2,1);
+            width: 0%;
+        }
+        .progress-bar-fill.danger { background: linear-gradient(90deg, #e63946, #ff6b6b); }
+
+        /* ─── Breakdown table ───────────────────────────────────────── */
+        .breakdown-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+        .breakdown-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .breakdown-header h3 {
+            font-family: 'Manrope', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--green-deep);
+        }
+        table.breakdown {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .88rem;
+        }
+        .breakdown thead tr { background: #fafafa; }
+        .breakdown th {
+            padding: 10px 20px;
+            text-align: left;
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: #999;
+        }
+        .breakdown td {
+            padding: 12px 20px;
+            border-top: 1px solid #f5f5f5;
+            font-weight: 500;
+            color: #333;
+        }
+        .breakdown .td-num {
+            font-family: 'Manrope', sans-serif;
+            font-weight: 700;
+            color: var(--green-deep);
+        }
+        .breakdown .td-contrib {
+            font-family: 'Manrope', sans-serif;
+            font-weight: 800;
+            color: var(--green-dark);
+        }
+        .breakdown tfoot td {
+            background: var(--green-light);
+            padding: 13px 20px;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 900;
+            color: var(--green-deep);
+            border-top: 2px solid var(--green);
+        }
+
+        /* ─── Responsive ────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+            .cortes-grid { grid-template-columns: 1fr; }
+            .content { padding: 20px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
+    <!-- ═══════ SIDEBAR ═══════ -->
+    <div class="sidebar">
+        <div class="logo">PROYUTS UTS</div>
+
+        <div class="menu">
+
+            <!-- Comunes a todos los roles -->
+            <a th:href="@{/}"><i class="bi bi-house"></i> Dashboard</a>
+            <a th:href="@{/web/cursos}"><i class="bi bi-book"></i> Cursos</a>
+            <a th:href="@{/estadisticas}"><i class="bi bi-bar-chart"></i> Estadísticas</a>
+            <a th:href="@{/perfil}"><i class="bi bi-person"></i> Perfil</a>
+
+            <!-- ── Solo ESTUDIANTE ── -->
+            <div sec:authorize="hasRole('ESTUDIANTE')">
+                <div class="menu-section">Estudiante</div>
+                <a th:href="@{/dashboard-estudiante}">
+                    <i class="bi bi-speedometer2"></i> Mi dashboard
+                </a>
+                <a th:href="@{/mis-cursos}">
+                    <i class="bi bi-wallet2"></i> Mis PROYUTS
+                </a>
+                <a th:href="@{/calculadora}" class="active">
+                    <i class="bi bi-calculator"></i> Calculadora
+                </a>
+            </div>
+
+            <!-- ── Solo PROFESOR ── -->
+            <div sec:authorize="hasRole('PROFESOR')">
+                <div class="menu-section">Docente</div>
+                <a th:href="@{/profesor/panel}">
+                    <i class="bi bi-cast"></i> Mi panel
+                </a>
+            </div>
+
+            <!-- ── Solo ADMINISTRADOR ── -->
+            <div sec:authorize="hasRole('ADMINISTRADOR')">
+                <div class="menu-section">Administración</div>
+                <a th:href="@{/admin/usuarios}">
+                    <i class="bi bi-people"></i> Usuarios
+                </a>
+                <a th:href="@{/web/cursos/nuevo}">
+                    <i class="bi bi-plus-circle"></i> Crear curso
+                </a>
+            </div>
+
+        </div>
+
+        <hr>
+        <a th:href="@{/logout}" class="logout-btn">Cerrar sesión</a>
+    </div>
+<!-- ═══════════════════════════════ CONTENT ═══════════════════════════════ -->
+<div class="content">
+
+    <!-- Header -->
+    <div class="page-header">
+        <div>
+            <h1><i class="bi bi-calculator" style="color:var(--green-dark)"></i> Calculadora de Notas</h1>
+            <p>Ingresa tus calificaciones por corte para proyectar tu nota definitiva</p>
+        </div>
+    </div>
+
+    <!-- Nombre de asignatura -->
+    <div class="subject-row">
+        <label><i class="bi bi-journal-text"></i> Asignatura</label>
+        <input type="text" id="subjectName" placeholder="Ej: Programación Orientada a Objetos"
+               oninput="updateSubjectTitle()">
+    </div>
+
+    <!-- ─── Los 3 cortes ─── -->
+    <div class="cortes-grid">
+
+        <!-- CORTE 1 — 33% -->
+        <div class="corte-card">
+            <div class="corte-header">
+                <h2>Corte 1</h2>
+                <span class="badge-pct">33%</span>
+            </div>
+            <div class="corte-body">
+
+                <div class="note-field">
+                    <div class="note-label">
+                        <span><i class="bi bi-file-earmark-text"></i> Trabajos</span>
+                        <span class="pct-tag">30%</span>
+                    </div>
+                    <div class="note-input-wrap">
+                        <input type="range" class="note-slider" min="0" max="5" step="0.1"
+                               id="c1_trabajos_s" value="0"
+                               oninput="syncSliderToNumber('c1_trabajos_s','c1_trabajos_n'); calcAll()">
+                        <input type="number" class="note-number" min="0" max="5" step="0.1"
+                               id="c1_trabajos_n" value="0.0" placeholder="0.0"
+                               oninput="syncNumberToSlider('c1_trabajos_n','c1_trabajos_s'); calcAll()">
+                    </div>
+                </div>
+
+                <div class="note-field">
+                    <div class="note-label">
+                        <span><i class="bi bi-pencil-square"></i> Parcial</span>
+                        <span class="pct-tag">60%</span>
+                    </div>
+                    <div class="note-input-wrap">
+                        <input type="range" class="note-slider" min="0" max="5" step="0.1"
+                               id="c1_parcial_s" value="0"
+                               oninput="syncSliderToNumber('c1_parcial_s','c1_parcial_n'); calcAll()">
+                        <input type="number" class="note-number" min="0" max="5" step="0.1"
+                               id="c1_parcial_n" value="0.0" placeholder="0.0"
+                               oninput="syncNumberToSlider('c1_parcial_n','c1_parcial_s'); calcAll()">
+                    </div>
+                </div>
+
+                <div class="note-field">
+                    <div class="note-label">
+                        <span><i class="bi bi-person-check"></i> Autoevaluación</span>
+                        <span class="pct-tag">10%</span>
+                    </div>
+                    <div class="note-input-wrap">
+                        <input type="range" class="note-slider" min="0" max="5" step="0.1"
+                               id="c1_auto_s" value="0"
+                               oninput="syncSliderToNumber('c1_auto_s','c1_auto_n'); calcAll()">
+                        <input type="number" class="note-number" min="0" max="5" step="0.1"
+                               id="c1_auto_n" value="0.0" placeholder="0.0"
+                               oninput="syncNumberToSlider('c1_auto_n','c1_auto_s'); calcAll()">
+                    </div>
+                </div>
+
+                <div class="corte-result">
+                    <span class="label">Nota corte 1</span>
+                    <span class="value" id="res_c1">0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CORTE 2 — 33% -->
+        <div class="corte-card">
+            <div class="corte-header">
+                <h2>Corte 2</h2>
+                <span class="badge-pct">33%</span>
+            </div>
+            <div class="corte-body">
+
+                <div class="note-field">
+                    <div class="note-label">
+                        <span><i class="bi bi-file-earmark-text"></i> Trabajos</span>
+                        <span class="pct-tag">30%</span>
+                    </div>
+                    <div class="note-input-wrap">
+                        <input type="range" class="note-slider" min="0" max="5" step="0.1"
+                               id="c2_trabajos_s" value="0"
+                               oninput="syncSliderToNumber('c2_trabajos_s','c2_trabajos_n'); calcAll()">
+                        <input type="number" class="note-number" min="0" max="5" step="0.1"
+                               id="c2_trabajos_n" value="0.0" placeholder="0.0"
+                               oninput="syncNumberToSlider('c2_trabajos_n','c2_trabajos_s'); calcAll()">
+                    </div>
+                </div>
+
+                <div class="note-field">
+                    <div class="note-label">
+                        <span><i class="bi bi-pencil-square"></i> Parcial</span>
+                        <span class="pct-tag">60%</span>
+                    </div>
+                    <div class="note-input-wrap">
+                        <input type="range" class="note-slider" min="0" max="5" step="0.1"
+                               id="c2_parcial_s" value="0"
+                               oninput="syncSliderToNumber('c2_parcial_s','c2_parcial_n'); calcAll()">
+                        <input type="number" class="note-number" min="0" max="5" step="0.1"
+                               id="c2_parcial_n" value="0.0" placeholder="0.0"
+                               oninput="syncNumberToSlider('c2_parcial_n','c2_parcial_s'); calcAll()">
+                    </div>
+                </div>
+
+                <div class="note-field">
+                    <div class="note-label">
+                        <span><i class="bi bi-person-check"></i> Autoevaluación</span>
+                        <span class="pct-tag">10%</span>
+                    </div>
+                    <div class="note-input-wrap">
+                        <input type="range" class="note-slider" min="0" max="5" step="0.1"
+                               id="c2_auto_s" value="0"
+                               oninput="syncSliderToNumber('c2_auto_s','c2_auto_n'); calcAll()">
+                        <input type="number" class="note-number" min="0" max="5" step="0.1"
+                               id="c2_auto_n" value="0.0" placeholder="0.0"
+                               oninput="syncNumberToSlider('c2_auto_n','c2_auto_s'); calcAll()">
+                    </div>
+                </div>
+
+                <div class="corte-result">
+                    <span class="label">Nota corte 2</span>
+                    <span class="value" id="res_c2">0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CORTE 3 — 34% -->
+        <div class="corte-card">
+            <div class="corte-header">
+                <h2>Corte 3</h2>
+                <span class="badge-pct">34%</span>
+            </div>
+            <div class="corte-body">
+
+                <div class="note-field">
+                    <div class="note-label">
+                        <span><i class="bi bi-file-earmark-text"></i> Trabajos</span>
+                        <span class="pct-tag">30%</span>
+                    </div>
+                    <div class="note-input-wrap">
+                        <input type="range" class="note-slider" min="0" max="5" step="0.1"
+                               id="c3_trabajos_s" value="0"
+                               oninput="syncSliderToNumber('c3_trabajos_s','c3_trabajos_n'); calcAll()">
+                        <input type="number" class="note-number" min="0" max="5" step="0.1"
+                               id="c3_trabajos_n" value="0.0" placeholder="0.0"
+                               oninput="syncNumberToSlider('c3_trabajos_n','c3_trabajos_s'); calcAll()">
+                    </div>
+                </div>
+
+                <div class="note-field">
+                    <div class="note-label">
+                        <span><i class="bi bi-pencil-square"></i> Parcial</span>
+                        <span class="pct-tag">60%</span>
+                    </div>
+                    <div class="note-input-wrap">
+                        <input type="range" class="note-slider" min="0" max="5" step="0.1"
+                               id="c3_parcial_s" value="0"
+                               oninput="syncSliderToNumber('c3_parcial_s','c3_parcial_n'); calcAll()">
+                        <input type="number" class="note-number" min="0" max="5" step="0.1"
+                               id="c3_parcial_n" value="0.0" placeholder="0.0"
+                               oninput="syncNumberToSlider('c3_parcial_n','c3_parcial_s'); calcAll()">
+                    </div>
+                </div>
+
+                <div class="note-field">
+                    <div class="note-label">
+                        <span><i class="bi bi-person-check"></i> Autoevaluación</span>
+                        <span class="pct-tag">10%</span>
+                    </div>
+                    <div class="note-input-wrap">
+                        <input type="range" class="note-slider" min="0" max="5" step="0.1"
+                               id="c3_auto_s" value="0"
+                               oninput="syncSliderToNumber('c3_auto_s','c3_auto_n'); calcAll()">
+                        <input type="number" class="note-number" min="0" max="5" step="0.1"
+                               id="c3_auto_n" value="0.0" placeholder="0.0"
+                               oninput="syncNumberToSlider('c3_auto_n','c3_auto_s'); calcAll()">
+                    </div>
+                </div>
+
+                <div class="corte-result">
+                    <span class="label">Nota corte 3</span>
+                    <span class="value" id="res_c3">0.00</span>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /.cortes-grid -->
+
+    <!-- ─── Resultado final ─── -->
+    <div class="final-card">
+        <div class="final-big">
+            <div class="final-number" id="final_num">0.00</div>
+            <div class="final-label">Nota definitiva</div>
+        </div>
+
+        <div class="final-details">
+            <h3 id="final_subject">Resultado</h3>
+            <p>Calificación final ponderada sobre los tres cortes académicos</p>
+
+            <span class="verdict pendiente" id="verdict_badge">
+                <i class="bi bi-hourglass-split"></i>
+                Ingresa tus notas
+            </span>
+
+            <div class="progress-wrap">
+                <div class="progress-labels">
+                    <span>0.0</span>
+                    <span style="color:var(--green-dark); font-weight:800">3.0 mínimo</span>
+                    <span>5.0</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress_fill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── Desglose ─── -->
+    <div class="breakdown-card">
+        <div class="breakdown-header">
+            <h3><i class="bi bi-table" style="color:var(--green-dark)"></i> Desglose por corte</h3>
+        </div>
+        <table class="breakdown">
+            <thead>
+                <tr>
+                    <th>Corte</th>
+                    <th>Peso</th>
+                    <th>Trabajos (30%)</th>
+                    <th>Parcial (60%)</th>
+                    <th>Autoevaluación (10%)</th>
+                    <th>Nota corte</th>
+                    <th>Contribución</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Corte 1</strong></td>
+                    <td>33%</td>
+                    <td class="td-num" id="t_c1_trab">0.00</td>
+                    <td class="td-num" id="t_c1_parc">0.00</td>
+                    <td class="td-num" id="t_c1_auto">0.00</td>
+                    <td class="td-num" id="t_c1_nota">0.00</td>
+                    <td class="td-contrib" id="t_c1_contrib">0.0000</td>
+                </tr>
+                <tr>
+                    <td><strong>Corte 2</strong></td>
+                    <td>33%</td>
+                    <td class="td-num" id="t_c2_trab">0.00</td>
+                    <td class="td-num" id="t_c2_parc">0.00</td>
+                    <td class="td-num" id="t_c2_auto">0.00</td>
+                    <td class="td-num" id="t_c2_nota">0.00</td>
+                    <td class="td-contrib" id="t_c2_contrib">0.0000</td>
+                </tr>
+                <tr>
+                    <td><strong>Corte 3</strong></td>
+                    <td>34%</td>
+                    <td class="td-num" id="t_c3_trab">0.00</td>
+                    <td class="td-num" id="t_c3_parc">0.00</td>
+                    <td class="td-num" id="t_c3_auto">0.00</td>
+                    <td class="td-num" id="t_c3_nota">0.00</td>
+                    <td class="td-contrib" id="t_c3_contrib">0.0000</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="6">NOTA DEFINITIVA</td>
+                    <td id="t_final">0.0000</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+</div><!-- /.content -->
+
+<script>
+    /* ─── Sync helpers ─── */
+    function clamp(v) { return Math.min(5, Math.max(0, parseFloat(v) || 0)); }
+
+    function syncSliderToNumber(sliderId, numberId) {
+        const val = clamp(document.getElementById(sliderId).value);
+        document.getElementById(numberId).value = val.toFixed(1);
+    }
+    function syncNumberToSlider(numberId, sliderId) {
+        let val = clamp(document.getElementById(numberId).value);
+        document.getElementById(sliderId).value = val;
+        document.getElementById(numberId).value = val.toFixed(1);
+    }
+
+    /* ─── Core calculation ─── */
+    function getVal(id) { return clamp(document.getElementById(id).value); }
+
+    function calcCorte(prefix) {
+        const t = getVal(prefix + '_trabajos_n');
+        const p = getVal(prefix + '_parcial_n');
+        const a = getVal(prefix + '_auto_n');
+        return t * 0.30 + p * 0.60 + a * 0.10;
+    }
+
+    function calcAll() {
+        const c1 = calcCorte('c1');
+        const c2 = calcCorte('c2');
+        const c3 = calcCorte('c3');
+
+        const contrib1 = c1 * 0.33;
+        const contrib2 = c2 * 0.33;
+        const contrib3 = c3 * 0.34;
+        const final    = contrib1 + contrib2 + contrib3;
+
+        /* Corte displays */
+        document.getElementById('res_c1').textContent = c1.toFixed(2);
+        document.getElementById('res_c2').textContent = c2.toFixed(2);
+        document.getElementById('res_c3').textContent = c3.toFixed(2);
+
+        /* Final number */
+        document.getElementById('final_num').textContent = final.toFixed(2);
+
+        /* Progress bar */
+        const pct = (final / 5) * 100;
+        const fill = document.getElementById('progress_fill');
+        fill.style.width = pct + '%';
+        fill.className = 'progress-bar-fill' + (final < 3 ? ' danger' : '');
+
+        /* Verdict */
+        const badge = document.getElementById('verdict_badge');
+        const allZero = (final === 0 &&
+            getVal('c1_trabajos_n') + getVal('c1_parcial_n') + getVal('c1_auto_n') +
+            getVal('c2_trabajos_n') + getVal('c2_parcial_n') + getVal('c2_auto_n') +
+            getVal('c3_trabajos_n') + getVal('c3_parcial_n') + getVal('c3_auto_n') === 0);
+
+        if (allZero) {
+            badge.className = 'verdict pendiente';
+            badge.innerHTML = '<i class="bi bi-hourglass-split"></i> Ingresa tus notas';
+        } else if (final >= 3.0) {
+            badge.className = 'verdict aprobado';
+            badge.innerHTML = '<i class="bi bi-patch-check-fill"></i> APROBADO';
+        } else {
+            badge.className = 'verdict reprobado';
+            badge.innerHTML = '<i class="bi bi-x-circle-fill"></i> REPROBADO';
+        }
+
+        /* Table */
+        document.getElementById('t_c1_trab').textContent   = getVal('c1_trabajos_n').toFixed(2);
+        document.getElementById('t_c1_parc').textContent   = getVal('c1_parcial_n').toFixed(2);
+        document.getElementById('t_c1_auto').textContent   = getVal('c1_auto_n').toFixed(2);
+        document.getElementById('t_c1_nota').textContent   = c1.toFixed(2);
+        document.getElementById('t_c1_contrib').textContent= contrib1.toFixed(4);
+
+        document.getElementById('t_c2_trab').textContent   = getVal('c2_trabajos_n').toFixed(2);
+        document.getElementById('t_c2_parc').textContent   = getVal('c2_parcial_n').toFixed(2);
+        document.getElementById('t_c2_auto').textContent   = getVal('c2_auto_n').toFixed(2);
+        document.getElementById('t_c2_nota').textContent   = c2.toFixed(2);
+        document.getElementById('t_c2_contrib').textContent= contrib2.toFixed(4);
+
+        document.getElementById('t_c3_trab').textContent   = getVal('c3_trabajos_n').toFixed(2);
+        document.getElementById('t_c3_parc').textContent   = getVal('c3_parcial_n').toFixed(2);
+        document.getElementById('t_c3_auto').textContent   = getVal('c3_auto_n').toFixed(2);
+        document.getElementById('t_c3_nota').textContent   = c3.toFixed(2);
+        document.getElementById('t_c3_contrib').textContent= contrib3.toFixed(4);
+
+        document.getElementById('t_final').textContent     = final.toFixed(4);
+    }
+
+    function updateSubjectTitle() {
+        const name = document.getElementById('subjectName').value.trim();
+        document.getElementById('final_subject').textContent = name || 'Resultado';
+    }
+
+    /* Inicializar */
+    calcAll();
+</script>
+</body>
+</html>
